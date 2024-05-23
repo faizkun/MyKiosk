@@ -10,4 +10,5 @@ data class StokData(
     @SerialName("description") val description: String,
     @SerialName("created_at") val createdAt: String? = null,
     @SerialName("id") val id: Int? = null,
+    @SerialName("user_id") val userId: String
 )

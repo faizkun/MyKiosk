@@ -13,7 +13,8 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.filter.FilterOperation
+import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.postgrest.result.PostgrestResult
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresListDataFlow
@@ -21,10 +22,12 @@ import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.buildJsonObject
-import org.slf4j.MDC.put
+import kotlinx.serialization.json.put
 import javax.inject.Inject
 
 class MyKioskRepositoryImpl @Inject constructor(
@@ -32,19 +35,32 @@ class MyKioskRepositoryImpl @Inject constructor(
     private val bookmarkDao: BookmarkDao
 ) : MyKioskRepository {
 
+    //Realtime Database
     private val stockChannel = client.channel("myKiosk")
 
     override suspend fun getAllStock(): Result<Flow<List<StokData>>> {
         val data = stockChannel.postgresListDataFlow(
             schema = "public",
             table = "stock_data",
-            primaryKey = StokData::id
+            primaryKey = StokData::id,
+
+
 
         ).flowOn(Dispatchers.IO)
 
         stockChannel.subscribe()
-        return Result.success(data)
+        return Result.success(data.map {it.filter {
+            it.userId == Kotpref.id
+        }  })
     }
+
+
+    override suspend fun unsubscribeChannel() {
+        stockChannel.unsubscribe()
+        client.realtime.removeChannel(stockChannel)
+    }
+
+    //--------------------------------------------------//
 
 
     override suspend fun register(
@@ -109,11 +125,25 @@ class MyKioskRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun logOut(): Flow<RequestState<Boolean>> = flow {
+        emit(RequestState.Loading)
+        try {
+            client.auth.signOut()
+            emit(RequestState.Success(true))
+        } catch (e: Exception){
+            emit(RequestState.Error(e.message.toString()))
+        }
+    }
 
 
-    override suspend fun unsubscribeChannel() {
-        stockChannel.unsubscribe()
-        client.realtime.removeChannel(stockChannel)
+    override suspend fun signOut(): Flow<RequestState<Boolean>> = flow {
+        emit(RequestState.Loading)
+        try {
+            client.auth.signOut()
+            emit(RequestState.Success(true))
+        } catch (e : Exception){
+            emit(RequestState.Error(e.message.toString()))
+        }
     }
 
 
@@ -188,6 +218,9 @@ class MyKioskRepositoryImpl @Inject constructor(
         }
     }
 
+
+
+    //Bookmark
     override fun getBookmarkList(): Flow<List<Bookmark>> = flow {
         emitAll(bookmarkDao.getBookmarkList())
     }

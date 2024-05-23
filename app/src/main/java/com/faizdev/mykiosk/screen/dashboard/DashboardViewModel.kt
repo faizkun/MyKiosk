@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.faizdev.mykiosk.data.MyKioskRepository
+import com.faizdev.mykiosk.data.local.entity.Bookmark
 import com.faizdev.mykiosk.data.source.remote.StokData
 import com.rmaprojects.apirequeststate.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,16 +24,45 @@ class DashboardViewModel @Inject constructor (
     private val repository: MyKioskRepository
 ): ViewModel(){
 
+    fun insertBookmark(bookmark: Bookmark) {
+        viewModelScope.launch {
+            repository.insertBookmark(bookmark)
+        }
+    }
+
+
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+
+
     private val _getAllStock =
         MutableStateFlow<RequestState<List<StokData>>>(
             RequestState.Loading
         )
+
 
     val getAllStock =
         _getAllStock.asStateFlow().stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(500),
             RequestState.Loading
         )
+
+
+    fun onSearchTextChange(text: String) {
+        _searchText.value = text
+    }
+
+    fun onToogleSearch() {
+        _isSearching.value = !_isSearching.value
+        if (!_isSearching.value) {
+            onSearchTextChange("")
+        }
+    }
 
     fun connectToRealtime(){
         viewModelScope.launch(Dispatchers.IO){
@@ -71,23 +101,13 @@ class DashboardViewModel @Inject constructor (
                 desc,
 
             ).collect {
-                when(it) {
-                    is RequestState.Error -> {
-                        Log.d("ceks", it.message)
-                    }
-                    is RequestState.Idle -> {
 
-                    }
-                    is RequestState.Loading -> {
-
-                    }
-                    is RequestState.Success -> {
-
-                    }
                 }
             }
         }
-    }
+
+
+
 
     fun deleteStock (id : Int){
         viewModelScope.launch {

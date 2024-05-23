@@ -21,6 +21,8 @@ interface MyKioskRepository {
         password: String
     ) : Flow<RequestState<Boolean>>
 
+
+    suspend fun logOut() : Flow<RequestState<Boolean>>
     suspend fun unsubscribeChannel()
 
     suspend fun getAllStock(): Result<Flow<List<StokData>>>
@@ -31,10 +33,12 @@ interface MyKioskRepository {
 
     fun deleteStock(id: Int): Flow<RequestState<List<StokData>>>
 
+
     //Bookmark
     fun getBookmarkList(): Flow<List<Bookmark>>
 
     suspend fun insertBookmark(bookmark: Bookmark)
 
     suspend fun deleteBookmark(bookmark: Bookmark)
+    suspend fun signOut(): Flow<RequestState<Boolean>>
 }

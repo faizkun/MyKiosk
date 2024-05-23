@@ -3,7 +3,6 @@ package com.faizdev.mykiosk.items
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,14 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,22 +26,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.faizdev.mykiosk.screen.destinations.Destination
 import com.faizdev.ui.theme.poppins
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StockItem(
+fun BookmarkItem(
     name: String,
     stockCount: Int,
     description: String,
     onClick: (nama: String, stok: Int, desc: String) -> Unit,
-    onDelete: () -> Unit
-) {
+    onDelete: () -> Unit,
+
+    ) {
 
     var showAlertDialog by remember {
         mutableStateOf(false)
@@ -62,18 +55,14 @@ fun StockItem(
             .padding(start = 16.dp, end = 16.dp, top = 13.dp)
             .combinedClickable(
                 onClick = {
-                    onClick(
-                        name,
-                        stockCount,
-                        description,
-                    )
+
                 },
                 onLongClick = {
                     showAlertDialog = true
-
                 },
 
                 ),
+
         shape = RoundedCornerShape(21.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
 
@@ -117,30 +106,34 @@ fun StockItem(
                     modifier = Modifier
                         .padding(start = 8.dp, top = 6.dp),
                 )
-
-
             }
 
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+            ) {
+
+            }
         }
     }
 
     if (showAlertDialog){
         AlertDialog(
-            onDismissRequest = {showAlertDialog = false},
-            title = { Text(
-                text = "Anda yakin ingin menghapus?",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-
-            ) },
-            confirmButton = {
+            title = {
+                Text(text = "Anda yakin ingin Hapus")
+            },
+            onDismissRequest = {showAlertDialog = false}
+            , confirmButton = {
                 TextButton(onClick = {
-                    Toast.makeText(context, "Terhapus", Toast.LENGTH_SHORT).show()
-                    onDelete()
+                    onClick(
+                        name,
+                        stockCount,
+                        description,
+                    )
+                    Toast.makeText(context, "Hapus", Toast.LENGTH_SHORT).show()
                 }) {
                     Text(text = "Hapus")
                 }
-
 
 
             },
@@ -151,12 +144,11 @@ fun StockItem(
                     }) {
                     Text(text = "Batal")
                 }
+
+
             }
 
         )
     }
+
 }
-
-
-
-

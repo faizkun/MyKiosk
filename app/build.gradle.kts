@@ -34,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -111,6 +111,9 @@ dependencies {
 
     // Api Wrapper
     implementation("com.github.rmaprojects:apiresponsewrapper:1.4")
+
+    //Splash Screen
+    implementation ("androidx.core:core-splashscreen:1.0.0-alpha02")
 }
 
 kapt{

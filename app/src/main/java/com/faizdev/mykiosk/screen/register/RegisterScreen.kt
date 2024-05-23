@@ -17,12 +17,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,7 +43,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,11 +54,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.faizdev.mykiosk.data.kotpref.Kotpref
 import com.faizdev.mykiosk.screen.destinations.DashboardScreenDestination
 import com.faizdev.mykiosk.screen.destinations.LoginScreenDestination
-import com.faizdev.mykiosk.ui.theme.poppins
+import com.faizdev.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-@Destination
+@Destination(start = true)
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
@@ -60,12 +66,17 @@ fun RegisterScreen(
 ) {
 
 
-    LaunchedEffect(true) {
-        if (Kotpref.id.isNotEmpty()) {
-            navigator.navigate(DashboardScreenDestination)
-        }
+//    LaunchedEffect(true) {
+//        if (Kotpref.id != null) {
+//            navigator.navigate(DashboardScreenDestination)
+//        }
+//    }
+
+    var isEmailError by remember {
+        mutableStateOf(false)
     }
 
+    var showPassword by remember { mutableStateOf(value = false) }
     val registerState = viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -77,11 +88,11 @@ fun RegisterScreen(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
-                .background(Color(0xFF86B6F6))
+                .background(MaterialTheme.colorScheme.inversePrimary)
         ) {
 
             var enableUsername by remember {
-                mutableStateOf("")
+                mutableStateOf(TextFieldValue(""))
             }
             var enableEmail by remember {
                 mutableStateOf(TextFieldValue(""))
@@ -95,10 +106,21 @@ fun RegisterScreen(
             Text(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .padding(top = 55.dp),
-                text = "Create Your Account",
-                fontSize = 35.sp,
-                color = Color.White,
+                    .padding(top = 53.dp),
+                text = "Create Your",
+                fontSize = 40.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontFamily = poppins,
+                fontWeight = FontWeight.SemiBold
+
+
+            )
+            Text(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                text = "Account",
+                fontSize = 40.sp,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontFamily = poppins,
                 fontWeight = FontWeight.SemiBold
 
@@ -106,21 +128,21 @@ fun RegisterScreen(
             )
 
 
-            Spacer(modifier = Modifier.size(35.dp))
-
+            Spacer(modifier = Modifier.size(59.dp))
             Card(
                 modifier = Modifier
                     .fillMaxSize(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
 
                 ) {
-                Spacer(modifier = Modifier.size(35.dp))
+                Spacer(modifier = Modifier.size(40.dp))
                 OutlinedTextField(
                     value = enableUsername,
                     label = {
                         Text(
                             text = "Username",
                             fontFamily = poppins,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     leadingIcon = {
@@ -139,13 +161,14 @@ fun RegisterScreen(
                 )
 
 
-                Spacer(modifier = Modifier.size(12.dp))
+
                 OutlinedTextField(
                     value = enableEmail,
                     label = {
                         Text(
                             text = "Email",
                             fontFamily = poppins,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     leadingIcon = {
@@ -159,19 +182,26 @@ fun RegisterScreen(
                         enableEmail = it
 
                     },
+                    isError = isEmailError,
+                    supportingText = {
+                            if (isEmailError) {
+                                Text(text = "Email tidak valid")
+                            }
+                    },
 
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
 
                 )
 
 
-                Spacer(modifier = Modifier.size(12.dp))
+
                 OutlinedTextField(
                     value = enablePassword,
                     label = {
                         Text(
                             text = "Password",
                             fontFamily = poppins,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     leadingIcon = {
@@ -180,12 +210,39 @@ fun RegisterScreen(
                     shape = RoundedCornerShape(11.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-
                         .padding(horizontal = 16.dp),
                     onValueChange = {
                         enablePassword = it
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (showPassword) {
+
+                        VisualTransformation.None
+
+                    } else {
+
+                        PasswordVisualTransformation()
+
+                    },
+                    trailingIcon = {
+                        if (showPassword) {
+                            IconButton(onClick = { showPassword = false }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Visibility,
+                                    contentDescription = "hide_password"
+                                )
+                            }
+                        } else {
+                            IconButton(
+                                onClick = { showPassword = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.VisibilityOff,
+                                    contentDescription = "hide_password"
+                                )
+                            }
+                        }
+                    }
+
 
                 )
 
@@ -193,7 +250,7 @@ fun RegisterScreen(
                 Button(
                     onClick = {
                         viewModel.register(
-                            enableUsername,
+                            enableUsername.text,
                             enableEmail.text,
                             enablePassword.text
                         )
@@ -202,7 +259,7 @@ fun RegisterScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        Color(0xFF86B6F6)
+                        MaterialTheme.colorScheme.inversePrimary
                     ),
                     shape = RoundedCornerShape(11.dp)
 
@@ -211,7 +268,8 @@ fun RegisterScreen(
                         text = "Sign Up",
                         fontFamily = poppins,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
 
 
                     )
@@ -222,7 +280,7 @@ fun RegisterScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(top = 20.dp),
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(
@@ -242,7 +300,7 @@ fun RegisterScreen(
                             Text(
                                 text = "Sudah memiliki akun?",
                                 fontFamily = poppins,
-                                color = Color.DarkGray
+                                color = MaterialTheme.colorScheme.onSurface
                             )
 
                             Text(

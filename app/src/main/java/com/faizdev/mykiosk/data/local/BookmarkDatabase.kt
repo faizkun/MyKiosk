@@ -6,11 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.faizdev.mykiosk.data.local.entity.Bookmark
 
-@Database(version = 1, entities = [Bookmark::class])
+@Database(version = 1, entities = [Bookmark::class], )
 abstract class BookmarkDatabase : RoomDatabase() {
 
     abstract fun getBookmarkDao() : BookmarkDao
-
     companion object {
         @Volatile
         private var INSTANCE : BookmarkDatabase? = null
@@ -20,7 +19,7 @@ abstract class BookmarkDatabase : RoomDatabase() {
                     context,
                     BookmarkDatabase::class.java,
                     "bookmark.db"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
             }
         }
     }

@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +32,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,27 +51,31 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.faizdev.mykiosk.R
+import com.faizdev.mykiosk.data.kotpref.Kotpref
 import com.faizdev.mykiosk.screen.destinations.DashboardScreenDestination
 import com.faizdev.mykiosk.screen.destinations.RegisterScreenDestination
-import com.faizdev.mykiosk.ui.theme.poppins
+import com.faizdev.ui.theme.poppins
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
-@Destination(start = true)
+@Destination
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
 
+    var showPassword by remember { mutableStateOf(value = false) }
     val loginState = viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -88,7 +95,7 @@ fun LoginScreen(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
-                .background(Color(0xFF86B6F6))
+                .background(MaterialTheme.colorScheme.inversePrimary)
         ) {
 
 
@@ -105,7 +112,7 @@ fun LoginScreen(
             Card(
                 modifier = Modifier
                     .fillMaxSize(),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
 
                 ) {
 
@@ -116,7 +123,8 @@ fun LoginScreen(
                     text = "Login",
                     fontFamily = poppins,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 29.sp
+                    fontSize = 29.sp,
+                    color = MaterialTheme.colorScheme.onSurface
 
 
                 )
@@ -129,6 +137,7 @@ fun LoginScreen(
                         Text(
                             text = "Email",
                             fontFamily = poppins,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     leadingIcon = {
@@ -153,6 +162,7 @@ fun LoginScreen(
                         Text(
                             text = "Password",
                             fontFamily = poppins,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     leadingIcon = {
@@ -161,12 +171,38 @@ fun LoginScreen(
                     shape = RoundedCornerShape(11.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-
                         .padding(horizontal = 16.dp),
                     onValueChange = {
                         enablePassword = it
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (showPassword) {
+
+                        VisualTransformation.None
+
+                    } else {
+
+                        PasswordVisualTransformation()
+
+                    },
+                    trailingIcon = {
+                        if (showPassword) {
+                            IconButton(onClick = { showPassword = false }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Visibility,
+                                    contentDescription = "hide_password"
+                                )
+                            }
+                        } else {
+                            IconButton(
+                                onClick = { showPassword = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.VisibilityOff,
+                                    contentDescription = "hide_password"
+                                )
+                            }
+                        }
+                    }
 
                 )
 
@@ -179,7 +215,7 @@ fun LoginScreen(
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        Color(0xFF86B6F6)
+                        MaterialTheme.colorScheme.inversePrimary
                     ),
                     shape = RoundedCornerShape(11.dp)
 
@@ -188,7 +224,8 @@ fun LoginScreen(
                         text = "Login",
                         fontFamily = poppins,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
 
 
                     )
@@ -199,7 +236,7 @@ fun LoginScreen(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(top = 20.dp),
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(
@@ -219,13 +256,15 @@ fun LoginScreen(
                             Text(
                                 text = "Pengguna baru?",
                                 fontFamily = poppins,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurface
                             )
 
                             Text(
                                 modifier = Modifier
                                     .clickable {
                                         navigator.navigate(RegisterScreenDestination)
+
+
                                     },
                                 text = " Sign Up",
                                 fontFamily = poppins,

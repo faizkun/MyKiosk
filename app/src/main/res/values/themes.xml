@@ -2,4 +2,5 @@
 <resources>
 
     <style name="Theme.MyKiosk" parent="android:Theme.Material.Light.NoActionBar" />
+
 </resources>

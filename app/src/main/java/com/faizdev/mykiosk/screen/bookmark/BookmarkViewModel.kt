@@ -16,8 +16,8 @@ import javax.inject.Inject
 class BookmarkViewModel @Inject constructor(
     private val repository: MyKioskRepository
 ) : ViewModel() {
-
     private val _bookmarkState = MutableStateFlow<RequestState<List<Bookmark>>>(RequestState.Idle)
+
     val bookmarkState = _bookmarkState.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -38,14 +38,17 @@ class BookmarkViewModel @Inject constructor(
         }
     }
 
+
+
+
     fun deleteBookmark(bookmark: Bookmark) {
       viewModelScope.launch {
            repository.deleteBookmark(bookmark)
         }
     }
 
-    init {
-        getBookmark()
-    }
+        init {
+            getBookmark()
+        }
 
 }
